@@ -1,19 +1,24 @@
 using BusinessObject;
+using BusinessObject.Model;
 using DataAccess;
+using DataAccess.Interface;
+using DataAccess.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddIdentity<BusinessObject.Model.User, IdentityRole>()
+        .AddEntityFrameworkStores<EStoreAPContext>();
 builder.Services.AddDbContext<EStoreAPContext>();
+builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddSwaggerGen(c =>
 {
     var securityScheme = new OpenApiSecurityScheme
@@ -40,36 +45,35 @@ builder.Services.AddSwaggerGen(c =>
     };
     c.AddSecurityRequirement(securityRequirement);
 });
-#region Config Authen
-//builder.Services
-//    .AddIdentityCore<User>(options =>
-//    {
-//        options.SignIn.RequireConfirmedAccount = false;
-//        options.User.RequireUniqueEmail = true;
-//        options.Password.RequireDigit = false;
-//        options.Password.RequiredLength = 6;
-//        options.Password.RequireNonAlphanumeric = false;
-//        options.Password.RequireUppercase = false;
-//        options.Password.RequireLowercase = false;
-//    })
-//    .AddEntityFrameworkStores<EStoreAPContext>();
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddJwtBearer(options =>
-//    {
-//        options.TokenValidationParameters = new TokenValidationParameters()
-//        {
-//            ValidateIssuer = true,
-//            ValidateAudience = true,
-//            ValidateLifetime = true,
-//            ValidateIssuerSigningKey = true,
-//            ValidAudience = builder.Configuration["Jwt:Audience"],
-//            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-//            IssuerSigningKey = new SymmetricSecurityKey(
-//                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
-//            )
-//        };
-//    });
-#endregion
+builder.Services
+    .AddIdentityCore<User>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.User.RequireUniqueEmail = true;
+        options.Password.RequireDigit = false;
+        options.Password.RequiredLength = 6;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireLowercase = false;
+    })
+    .AddEntityFrameworkStores<EStoreAPContext>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"])
+            )
+        };
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -80,6 +84,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

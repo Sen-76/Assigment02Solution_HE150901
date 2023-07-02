@@ -1,4 +1,4 @@
-﻿using BusinessObject;
+﻿using BusinessObject.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;

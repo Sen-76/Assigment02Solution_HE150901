@@ -13,6 +13,5 @@ namespace DataAccess.Interface
         public Task<ApiResponse> Create(T newValue);
         public Task<ApiResponse> Update(T newValue);
         public Task<ApiResponse> Delete(Guid id);
-        public Task<ApiResponse> GetById(Guid id);
     }
 }

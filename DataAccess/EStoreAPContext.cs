@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using BusinessObject;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using DataAccess.Configuration;
+using BusinessObject.Model;
 
 namespace DataAccess
 {

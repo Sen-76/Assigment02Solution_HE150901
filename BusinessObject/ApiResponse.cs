@@ -17,7 +17,7 @@ namespace BusinessObject
     {
         Success = 200,
         ForBiden = 403,
-        BadRequesr = 400,
+        BadRequest = 400,
         Authorie = 401,
         NotFound = 404,
         InternalServer = 500
