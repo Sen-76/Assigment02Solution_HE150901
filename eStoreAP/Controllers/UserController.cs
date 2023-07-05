@@ -99,5 +99,32 @@ namespace eStoreAP.Controllers
                 };
             }
         }
+        [HttpGet("GetList")]
+        public async Task<ApiResponse> GetList()
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return new ApiResponse()
+                    {
+                        Status = ResponeStatus.NotFound,
+                        Message = "Model is invalid",
+                        Success = false
+                    };
+                }
+                var result = await _userService.GetList();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse()
+                {
+                    Status = ResponeStatus.BadRequest,
+                    Message = ex.Message,
+                    Success = false
+                };
+            }
+        }
     }
 }

@@ -48,9 +48,21 @@ namespace DataAccess.Service
             throw new NotImplementedException();
         }
 
-        public Task<ApiResponse> GetList()
+        public async Task<ApiResponse> GetList()
         {
-            throw new NotImplementedException();
+            var product = await _context.Users.ToListAsync();
+            if (product.Count > 0)
+            {
+                return new ApiResponse()
+                {
+                    Success = true,
+                    Data = product
+                };
+            }
+            return new ApiResponse()
+            {
+                Success = false
+            };
         }
 
         public Task<ApiResponse> Update(User newValue)

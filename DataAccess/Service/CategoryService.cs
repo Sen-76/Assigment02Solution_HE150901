@@ -46,10 +46,18 @@ namespace DataAccess.Service
             var product = await _context.Categories.Where(x => x.CategoryId == id).FirstOrDefaultAsync();
             if (product != null)
             {
+                _context.Categories.Remove(product);
+                bool result = await _context.SaveChangesAsync() > 0;
+                if (!result)
+                {
+                    return new ApiResponse()
+                    {
+                        Success= false
+                    };
+                }
                 return new ApiResponse()
                 {
-                    Success = true,
-                    Data = product
+                    Success= true
                 };
             }
             return new ApiResponse()

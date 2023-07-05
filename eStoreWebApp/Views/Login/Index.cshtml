@@ -41,17 +41,17 @@
 </div>
 @section Scripts{
     <script>
-        $("#loginBtn").on('click', function () {
+        $("#loginBtn").on('click', function (e) {
+            e.preventDefault;
             var formData = {
                 email: $('#email').val(),
                 password: $('#password').val()
             };
 
             $.ajax({
-                url: "http://localhost:7039/api/User/Login",
+                url: "https://localhost:7039/api/User/Login",
                 method: "POST",
                 contentType: "application/json",
-                headers: {},
                 data: JSON.stringify(formData),
                 success: function (response) {
                     console.log('oke');

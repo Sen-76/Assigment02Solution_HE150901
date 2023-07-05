@@ -48,11 +48,19 @@ namespace DataAccess.Service
         public async Task<ApiResponse> Delete(Guid id)
         {
             var product = await _context.Products.Where(x => x.ProductId == id).FirstOrDefaultAsync();
-            var orderDetail = await _context.OrderDetails.Where(x => x.ProductId == id).FirstOrDefaultAsync();
-            if (product != null && orderDetail != null)
+            if (product != null)
             {
-                _context.OrderDetails.Remove(orderDetail);
+                var orderDetail = await _context.OrderDetails.Where(x => x.ProductId == id).FirstOrDefaultAsync();
+                if (orderDetail != null) _context.OrderDetails.Remove(orderDetail);
                 _context.Products.Remove(product);
+                bool result = await _context.SaveChangesAsync() > 0;
+                if (!result)
+                {
+                    return new ApiResponse()
+                    {
+                        Success= false
+                    };
+                }
                 return new ApiResponse()
                 {
                     Success= true
@@ -66,7 +74,7 @@ namespace DataAccess.Service
 
         public async Task<ApiResponse> GetById(Guid id)
         {
-            var product = await _context.Products.Where(x => x.ProductId == id).Include(x => x.Category).FirstOrDefaultAsync();
+            var product = await _context.Products.Where(x => x.ProductId == id).FirstOrDefaultAsync();
             if (product != null)
             {
                 return new ApiResponse()

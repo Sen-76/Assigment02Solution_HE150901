@@ -15,6 +15,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", build => build.AllowAnyMethod()
+        .AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(hostName => true).Build());
+});
 builder.Services.AddSwaggerGen(c =>
 {
     var securityScheme = new OpenApiSecurityScheme

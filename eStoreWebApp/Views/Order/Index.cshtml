@@ -1,0 +1,184 @@
+﻿<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#panel" onclick="Panel()">Create</button>
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <td>OrderId</td>
+            <td>MemberId</td>
+            <td>OrderDate</td>
+            <td>RequiredDate</td>
+            <td>ShippedDate</td>
+            <td>Freight</td>
+            <td style="width: 200px">Action</td>
+        </tr>
+    </thead>
+    <tbody id="tablebody">
+    </tbody>
+</table>
+
+<div class="offcanvas offcanvas-end" id="panel">
+    <div class="offcanvas-header">
+        <h5 id="panelLabel">Create</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form>
+            <div class="form-item" style="margin-bottom: 20px">
+                <label class="item-name" style="margin-bottom: 5px">Member</label>
+                <select class="form-control" id="member"></select>
+            </div>
+            <div class="form-item" style="margin-bottom: 20px">
+                <label class="item-name" style="margin-bottom: 5px">Order Date</label>
+                <input class="form-control" type="datetime" id="orderDate" />
+            </div>
+            <div class="form-item" style="margin-bottom: 20px">
+                <label class="item-name" style="margin-bottom: 5px">Required Date</label>
+                <input class="form-control" type="datetime" id="requiredDate" />
+            </div>
+            <div class="form-item" style="margin-bottom: 20px">
+                <label class="item-name" style="margin-bottom: 5px">Shipped Date</label>
+                <input class="form-control" type="datetime" id="shippedDate" />
+            </div>
+            <div class="form-item" style="margin-bottom: 20px">
+                <label class="item-name" style="margin-bottom: 5px">Freight</label>
+                <input class="form-control" type="number" id="freight" />
+            </div>
+            <div class="form-item" style="margin-bottom: 20px">
+                <button type="button" id="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <span id="modal-content"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="delete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "https://localhost:7039/api/Order/GetList",
+                method: "GET",
+                contentType: "application/json",
+                success: function (response) {
+                    response.data.forEach((item) => {
+                        var $tr = $('<tr>')
+                        var $orderId = $('<td>').text(item.orderId)
+                        var $memberId = $('<td>').text(item.memberId)
+                        var $orderDate = $('<td>').text(item.orderDate)
+                        var $requiredDate = $('<td>').text(item.requiredDate)
+                        var $shippedDate = $('<td>').text(item.shippedDate)
+                        var $freight = $('<td>').text(item.freight)
+                        var $action = $('<td>')
+                        var $edit = $('<button onclick="Panel(`' + item.orderId + '`)">').text('Edit').addClass('btn btn-primary')
+                            .attr("data-bs-toggle", "offcanvas").attr("data-bs-target", "#panel")
+                        var $delete = $('<button onclick="Modal(`' + item.orderId + '`)">').text('Delete').addClass('btn btn-danger')
+                            .attr("data-bs-toggle", "modal").attr("data-bs-target", "#modal")
+                        $action.append($edit, $delete)
+                        $tr.append($orderId, $memberId, $orderDate, $requiredDate, $shippedDate, $freight, $action)
+                        $('#tablebody').append($tr)
+                    })
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    alert(xhr.responseText);
+                },
+            });
+        });
+        function Modal(id) {
+            $('#modal-content').text('Are you sure to delete this order?')
+            $('#delete').on('click', function () {
+                $.ajax({
+                    url: "https://localhost:7039/api/Order/Delete?id=" + id,
+                    method: "POST",
+                    contentType: "application/json",
+                    success: function (response) {
+                        response.success && window.location.reload()
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        alert(xhr.responseText);
+                    },
+                });
+            })
+        }
+        function Panel(id) {
+            $('#panelLabel').text('Create')
+            $.ajax({
+                url: "https://localhost:7039/api/User/GetList",
+                method: "GET",
+                contentType: "application/json",
+                success: function (response) {
+                    response.data.forEach((item) => {
+                        var $option = $('<option>').val(item.id).attr('id', item.id).text(item.userName)
+                        $('#member').append($option)
+                    })
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    alert(xhr.responseText);
+                },
+            });
+            if (id) {
+                $('#panelLabel').text('Update')
+                $.ajax({
+                    url: "https://localhost:7039/api/Order/GetById?id=" + id,
+                    method: "GET",
+                    contentType: "application/json",
+                    success: function (response) {
+                        $('#member').val(response.data.memberId),
+                            $('#orderDate').val(response.data.orderDate),
+                            $('#requiredDate').val(response.data.requiredDate),
+                            $('#shippedDate').val(response.data.shippedDate),
+                            $('#freight').val(response.data.freight)
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        alert(xhr.responseText);
+                    },
+                });
+            }
+            $('#submit').on('click', function (e) {
+                e.preventDefault;
+                var formData = {
+                    orderId: id || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    memberId: $('#member').val(),
+                    orderDate: $('#orderDate').val(),
+                    requiredDate: $('#requiredDate').val(),
+                    shippedDate: $('#shippedDate').val(),
+                    freight: $('#freight').val()
+                };
+                var href = id ? "https://localhost:7039/api/Order/Update" : "https://localhost:7039/api/Order/Create"
+                $.ajax({
+                    url: href,
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(formData),
+                    success: function (response) {
+                        console.log(response)
+                        response.success && window.location.reload()
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        alert(xhr.responseText);
+                    },
+                });
+            })
+        }
+    </script>
+}
