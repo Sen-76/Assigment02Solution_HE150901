@@ -63,6 +63,7 @@ namespace DataAccess.Service
             throw new NotImplementedException();
         }
 
+
         public async Task<ApiResponse> Regis(UserVM newValue)
         {
             try
