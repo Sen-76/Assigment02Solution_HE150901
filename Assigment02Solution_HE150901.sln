@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eStoreAP", "eStoreAP\eStoreAP.csproj", "{79D6790D-0D20-46D3-B257-6EDA79DE162B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eStoreAP", "eStoreAP\eStoreAP.csproj", "{79D6790D-0D20-46D3-B257-6EDA79DE162B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessObject", "BusinessObject\BusinessObject.csproj", "{8692594F-92DF-4D6F-A02B-2D834E419159}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessObject", "BusinessObject\BusinessObject.csproj", "{8692594F-92DF-4D6F-A02B-2D834E419159}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{DA48528B-2097-4C80-B12A-3860419F294A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccess", "DataAccess\DataAccess.csproj", "{DA48528B-2097-4C80-B12A-3860419F294A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eStoreWebApp", "eStoreWebApp\eStoreWebApp.csproj", "{C2E19E03-4055-46B1-BFFC-E9D17E1E94B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{DA48528B-2097-4C80-B12A-3860419F294A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA48528B-2097-4C80-B12A-3860419F294A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA48528B-2097-4C80-B12A-3860419F294A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2E19E03-4055-46B1-BFFC-E9D17E1E94B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2E19E03-4055-46B1-BFFC-E9D17E1E94B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2E19E03-4055-46B1-BFFC-E9D17E1E94B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2E19E03-4055-46B1-BFFC-E9D17E1E94B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

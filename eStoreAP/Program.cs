@@ -1,4 +1,4 @@
-using BusinessObject;
+﻿using BusinessObject;
 using BusinessObject.Model;
 using DataAccess;
 using DataAccess.Interface;
@@ -6,6 +6,7 @@ using DataAccess.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -15,8 +16,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddIdentity<BusinessObject.Model.User, IdentityRole>()
-        .AddEntityFrameworkStores<EStoreAPContext>();
 builder.Services.AddDbContext<EStoreAPContext>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddSwaggerGen(c =>
@@ -36,6 +35,8 @@ builder.Services.AddSwaggerGen(c =>
         }
     };
     c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, securityScheme);
+
+    // Cấu hình requirement để yêu cầu JWT
     var securityRequirement = new OpenApiSecurityRequirement
     {
         {
@@ -46,7 +47,7 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityRequirement(securityRequirement);
 });
 builder.Services
-    .AddIdentityCore<User>(options =>
+    .AddIdentity<User, IdentityRole>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
         options.User.RequireUniqueEmail = true;
@@ -56,8 +57,14 @@ builder.Services
         options.Password.RequireUppercase = false;
         options.Password.RequireLowercase = false;
     })
-    .AddEntityFrameworkStores<EStoreAPContext>();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddEntityFrameworkStores<EStoreAPContext>()
+    .AddDefaultTokenProviders();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters()
@@ -82,7 +89,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors(build =>
+{
+    build.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+});
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
