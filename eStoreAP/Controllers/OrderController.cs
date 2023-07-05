@@ -10,12 +10,12 @@ namespace eStoreAP.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class OrderController : ControllerBase
     {
-        private readonly IProductService _productService;
-        public ProductController(IProductService productService)
+        private readonly IOrderService _orderService;
+        public OrderController(IOrderService orderService)
         {
-            _productService = productService;
+            _orderService = orderService;
         }
         [HttpGet("GetList")]
         public async Task<ApiResponse> GetList()
@@ -31,7 +31,7 @@ namespace eStoreAP.Controllers
                         Success = false
                     };
                 }
-                var result = await _productService.GetList();
+                var result = await _orderService.GetList();
                 return result;
             }
             catch (Exception ex)
@@ -58,7 +58,7 @@ namespace eStoreAP.Controllers
                         Success = false
                     };
                 }
-                var result = await _productService.GetById(id);
+                var result = await _orderService.GetById(id);
                 return result;
             }
             catch (Exception ex)
@@ -72,7 +72,7 @@ namespace eStoreAP.Controllers
             }
         }
         [HttpPost("Create")]
-        public async Task<ApiResponse> Create(ProductVM newValue)
+        public async Task<ApiResponse> Create(OrderVm newValue)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace eStoreAP.Controllers
                         Success = false
                     };
                 }
-                var result = await _productService.Create(newValue);
+                var result = await _orderService.Create(newValue);
                 return result;
             }
             catch (Exception ex)
@@ -112,7 +112,7 @@ namespace eStoreAP.Controllers
                         Success = false
                     };
                 }
-                var result = await _productService.Delete(id);
+                var result = await _orderService.Delete(id);
                 return result;
             }
             catch (Exception ex)
@@ -126,7 +126,7 @@ namespace eStoreAP.Controllers
             }
         }
         [HttpPost("Update")]
-        public async Task<ApiResponse> Update(ProductVM newValue)
+        public async Task<ApiResponse> Update(OrderVm newValue)
         {
             try
             {
@@ -139,7 +139,7 @@ namespace eStoreAP.Controllers
                         Success = false
                     };
                 }
-                var result = await _productService.Update(newValue);
+                var result = await _orderService.Update(newValue);
                 return result;
             }
             catch (Exception ex)

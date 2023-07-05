@@ -20,7 +20,7 @@ namespace DataAccess.Configuration
             builder.Property(x => x.UnitStock);
             builder.HasOne(x => x.Category)
                 .WithMany(x => x.Products)
-                .HasForeignKey(x => x.CategoryId);
+                .HasForeignKey(x => x.CategoryId).IsRequired(false);
         }
     }
 }

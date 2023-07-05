@@ -1,8 +1,6 @@
-﻿using BusinessObject;
-using BusinessObject.Model;
-using BusinessObject.ViewModel;
+﻿using BusinessObject.ViewModel;
+using BusinessObject;
 using DataAccess.Interface;
-using DataAccess.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,12 +8,12 @@ namespace eStoreAP.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class CateController : ControllerBase
     {
-        private readonly IProductService _productService;
-        public ProductController(IProductService productService)
+        private readonly ICateService _cateService;
+        public CateController(ICateService cateService)
         {
-            _productService = productService;
+            _cateService = cateService;
         }
         [HttpGet("GetList")]
         public async Task<ApiResponse> GetList()
@@ -31,7 +29,7 @@ namespace eStoreAP.Controllers
                         Success = false
                     };
                 }
-                var result = await _productService.GetList();
+                var result = await _cateService.GetList();
                 return result;
             }
             catch (Exception ex)
@@ -58,7 +56,7 @@ namespace eStoreAP.Controllers
                         Success = false
                     };
                 }
-                var result = await _productService.GetById(id);
+                var result = await _cateService.GetById(id);
                 return result;
             }
             catch (Exception ex)
@@ -72,7 +70,7 @@ namespace eStoreAP.Controllers
             }
         }
         [HttpPost("Create")]
-        public async Task<ApiResponse> Create(ProductVM newValue)
+        public async Task<ApiResponse> Create(CategoryVM newValue)
         {
             try
             {
@@ -85,7 +83,7 @@ namespace eStoreAP.Controllers
                         Success = false
                     };
                 }
-                var result = await _productService.Create(newValue);
+                var result = await _cateService.Create(newValue);
                 return result;
             }
             catch (Exception ex)
@@ -112,7 +110,7 @@ namespace eStoreAP.Controllers
                         Success = false
                     };
                 }
-                var result = await _productService.Delete(id);
+                var result = await _cateService.Delete(id);
                 return result;
             }
             catch (Exception ex)
@@ -126,7 +124,7 @@ namespace eStoreAP.Controllers
             }
         }
         [HttpPost("Update")]
-        public async Task<ApiResponse> Update(ProductVM newValue)
+        public async Task<ApiResponse> Update(CategoryVM newValue)
         {
             try
             {
@@ -139,7 +137,7 @@ namespace eStoreAP.Controllers
                         Success = false
                     };
                 }
-                var result = await _productService.Update(newValue);
+                var result = await _cateService.Update(newValue);
                 return result;
             }
             catch (Exception ex)

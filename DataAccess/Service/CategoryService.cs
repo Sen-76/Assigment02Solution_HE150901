@@ -1,36 +1,32 @@
-﻿using BusinessObject;
-using BusinessObject.Model;
+﻿using BusinessObject.Model;
 using BusinessObject.ViewModel;
-using DataAccess.Interface;
-using Microsoft.AspNetCore.Identity;
+using BusinessObject;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataAccess.Interface;
 
 namespace DataAccess.Service
 {
-    public class ProductService : IProductService
+    public class CategoryService : ICateService
     {
         private readonly EStoreAPContext _context;
-        public ProductService(EStoreAPContext eStoreAp)
+        public CategoryService(EStoreAPContext eStoreAp)
         {
             _context = eStoreAp;
         }
-        public async Task<ApiResponse> Create(ProductVM newValue)
+
+        public async Task<ApiResponse> Create(CategoryVM newValue)
         {
-            var product = new Product()
+            var cate = new Category()
             {
-                ProductId = Guid.NewGuid(),
-                CategoryId = newValue.CategoryId,
-                ProductName = newValue.ProductName,
-                UnitPrice = newValue.UnitPrice,
-                UnitStock = newValue.UnitStock,
+                CategoryId = Guid.NewGuid(),
+                CategoryName = newValue.CategoryName,
             };
-            await _context.Products.AddAsync(product);
+            await _context.Categories.AddAsync(cate);
             bool result = await _context.SaveChangesAsync() > 0;
             if (!result)
             {
@@ -41,21 +37,19 @@ namespace DataAccess.Service
             }
             return new ApiResponse()
             {
-                Success= true
+                Success = true
             };
         }
 
         public async Task<ApiResponse> Delete(Guid id)
         {
-            var product = await _context.Products.Where(x => x.ProductId == id).FirstOrDefaultAsync();
-            var orderDetail = await _context.OrderDetails.Where(x => x.ProductId == id).FirstOrDefaultAsync();
-            if (product != null && orderDetail != null)
+            var product = await _context.Categories.Where(x => x.CategoryId == id).FirstOrDefaultAsync();
+            if (product != null)
             {
-                _context.OrderDetails.Remove(orderDetail);
-                _context.Products.Remove(product);
                 return new ApiResponse()
                 {
-                    Success= true
+                    Success = true,
+                    Data = product
                 };
             }
             return new ApiResponse()
@@ -66,13 +60,13 @@ namespace DataAccess.Service
 
         public async Task<ApiResponse> GetById(Guid id)
         {
-            var product = await _context.Products.Where(x => x.ProductId == id).Include(x => x.Category).FirstOrDefaultAsync();
+            var product = await _context.Categories.Where(x => x.CategoryId == id).FirstOrDefaultAsync();
             if (product != null)
             {
                 return new ApiResponse()
                 {
-                    Success= true,
-                    Data= product
+                    Success = true,
+                    Data = product
                 };
             }
             return new ApiResponse()
@@ -83,13 +77,13 @@ namespace DataAccess.Service
 
         public async Task<ApiResponse> GetList()
         {
-            var product = await _context.Products.OrderBy(x => x.ProductName).ToListAsync();
+            var product = await _context.Categories.OrderBy(x => x.CategoryName).ToListAsync();
             if (product.Count > 0)
             {
                 return new ApiResponse()
                 {
-                    Success= true,
-                    Data= product
+                    Success = true,
+                    Data = product
                 };
             }
             return new ApiResponse()
@@ -98,17 +92,14 @@ namespace DataAccess.Service
             };
         }
 
-        public async Task<ApiResponse> Update(ProductVM newValue)
+        public async Task<ApiResponse> Update(CategoryVM newValue)
         {
-            var product = new Product()
+            var cate = new Category()
             {
-                ProductId = newValue.ProductId,
                 CategoryId = newValue.CategoryId,
-                ProductName = newValue.ProductName,
-                UnitPrice = newValue.UnitPrice,
-                UnitStock = newValue.UnitStock,
+                CategoryName = newValue.CategoryName,
             };
-            _context.Products.Update(product);
+            _context.Categories.Update(cate);
             bool result = await _context.SaveChangesAsync() > 0;
             if (!result)
             {
@@ -119,7 +110,7 @@ namespace DataAccess.Service
             }
             return new ApiResponse()
             {
-                Success= true
+                Success = true
             };
         }
     }
