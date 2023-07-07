@@ -54,6 +54,7 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<IOrderService, OrderService>();
 builder.Services.AddTransient<ICateService, CategoryService>();
+builder.Services.AddTransient<IOrderDetailService, OrderDetailService>();
 builder.Services
     .AddIdentity<User, IdentityRole>(options =>
     {

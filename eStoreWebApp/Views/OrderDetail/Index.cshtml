@@ -1,15 +1,14 @@
-﻿<h1>Order</h1>
+﻿<h1>Order Detail</h1>
 <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#panel" onclick="Panel()">Create</button>
 
 <table class="table table-striped table-hover">
     <thead>
         <tr>
             <td>OrderId</td>
-            <td>MemberId</td>
-            <td>OrderDate</td>
-            <td>RequiredDate</td>
-            <td>ShippedDate</td>
-            <td>Freight</td>
+            <td>ProductId</td>
+            <td>UnitPrice</td>
+            <td>Quantity</td>
+            <td>Discount</td>
             <td style="width: 200px">Action</td>
         </tr>
     </thead>
@@ -25,24 +24,20 @@
     <div class="offcanvas-body">
         <form>
             <div class="form-item" style="margin-bottom: 20px">
-                <label class="item-name" style="margin-bottom: 5px">Member</label>
-                <select class="form-control" id="member"></select>
+                <label class="item-name" style="margin-bottom: 5px">Product</label>
+                <select class="form-control" id="product"></select>
             </div>
             <div class="form-item" style="margin-bottom: 20px">
-                <label class="item-name" style="margin-bottom: 5px">Order Date</label>
-                <input class="form-control" type="datetime" id="orderDate" />
+                <label class="item-name" style="margin-bottom: 5px">Unit Price</label>
+                <input class="form-control" type="number" id="unitPrice" />
             </div>
             <div class="form-item" style="margin-bottom: 20px">
-                <label class="item-name" style="margin-bottom: 5px">Required Date</label>
-                <input class="form-control" type="datetime" id="requiredDate" />
+                <label class="item-name" style="margin-bottom: 5px">Quantity</label>
+                <input class="form-control" type="number" id="quantity" />
             </div>
             <div class="form-item" style="margin-bottom: 20px">
-                <label class="item-name" style="margin-bottom: 5px">Shipped Date</label>
-                <input class="form-control" type="datetime" id="shippedDate" />
-            </div>
-            <div class="form-item" style="margin-bottom: 20px">
-                <label class="item-name" style="margin-bottom: 5px">Freight</label>
-                <input class="form-control" type="number" id="freight" />
+                <label class="item-name" style="margin-bottom: 5px">Discount</label>
+                <input class="form-control" type="number" id="discount" />
             </div>
             <div class="form-item" style="margin-bottom: 20px">
                 <button type="button" id="submit" class="btn btn-primary">Submit</button>
@@ -51,47 +46,28 @@
     </div>
 </div>
 
-<div class="modal fade" id="modal" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalLabel">Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <span id="modal-content"></span>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" id="delete">Delete</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section Scripts{
     <script>
         $(document).ready(function () {
             $.ajax({
-                url: "https://localhost:7039/api/Order/GetList",
+                url: "https://localhost:7039/api/OrderDetail/GetList",
                 method: "GET",
                 contentType: "application/json",
                 success: function (response) {
                     response.data.forEach((item) => {
                         var $tr = $('<tr>')
                         var $orderId = $('<td>').text(item.orderId)
-                        var $memberId = $('<td>').text(item.memberId)
-                        var $orderDate = $('<td>').text(item.orderDate)
-                        var $requiredDate = $('<td>').text(item.requiredDate)
-                        var $shippedDate = $('<td>').text(item.shippedDate)
-                        var $freight = $('<td>').text(item.freight)
+                        var $productId = $('<td>').text(item.productId)
+                        var $unitPrice = $('<td>').text(item.unitPrice)
+                        var $quantity = $('<td>').text(item.quantity)
+                        var $discount = $('<td>').text(item.discount)
                         var $action = $('<td>')
                         var $edit = $('<button onclick="Panel(`' + item.orderId + '`)">').text('Edit').addClass('btn btn-primary')
                             .attr("data-bs-toggle", "offcanvas").attr("data-bs-target", "#panel")
                         var $delete = $('<button onclick="Modal(`' + item.orderId + '`)">').text('Delete').addClass('btn btn-danger')
                             .attr("data-bs-toggle", "modal").attr("data-bs-target", "#modal")
                         $action.append($edit, $delete)
-                        $tr.append($orderId, $memberId, $orderDate, $requiredDate, $shippedDate, $freight, $action)
+                        $tr.append($orderId, $productId, $unitPrice, $quantity, $discount, $action)
                         $('#tablebody').append($tr)
                     })
                 },
@@ -101,33 +77,16 @@
                 },
             });
         });
-        function Modal(id) {
-            $('#modal-content').text('Are you sure to delete this order?')
-            $('#delete').on('click', function () {
-                $.ajax({
-                    url: "https://localhost:7039/api/Order/Delete?id=" + id,
-                    method: "POST",
-                    contentType: "application/json",
-                    success: function (response) {
-                        response.success && window.location.reload()
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                        alert(xhr.responseText);
-                    },
-                });
-            })
-        }
         function Panel(id) {
             $('#panelLabel').text('Create')
             $.ajax({
-                url: "https://localhost:7039/api/User/GetList",
+                url: "https://localhost:7039/api/Product/GetList",
                 method: "GET",
                 contentType: "application/json",
                 success: function (response) {
                     response.data.forEach((item) => {
-                        var $option = $('<option>').val(item.id).attr('id', item.id).text(item.userName)
-                        $('#member').append($option)
+                        var $option = $('<option>').val(item.productId).attr('id', item.productId).text(item.productName)
+                        $('#product').append($option)
                     })
                 },
                 error: function (xhr, status, error) {
@@ -164,7 +123,7 @@
                     shippedDate: $('#shippedDate').val(),
                     freight: $('#freight').val()
                 };
-                var href = id ? "https://localhost:7039/api/Order/Update" : "https://localhost:7039/api/Order/Create"
+                var href = id ? "https://localhost:7039/api/OrderDetail/Update" : "https://localhost:7039/api/OrderDetail/Create"
                 $.ajax({
                     url: href,
                     method: "POST",

@@ -1,5 +1,4 @@
-﻿using BusinessObject.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace BusinessObject.ViewModel
 {
-    public class ProductVM
+    public class OrderDetailVM
     {
+        [Required]
+        public Guid OrderId { get; set; }
         [Required]
         public Guid ProductId { get; set; }
         [Required]
-        public Guid CategoryId { get; set; }
-        [Required]
-        public string ProductName { get; set; }
-        [Required]
         public float UnitPrice { get; set; }
         [Required]
-        public float UnitStock { get; set; }
+        public float Quantity { get; set; }
+        [Required]
+        public float Discount { get; set; }
     }
 }
