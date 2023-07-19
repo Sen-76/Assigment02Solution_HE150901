@@ -20,27 +20,48 @@ namespace DataAccess.Service
         }
         public async Task<ApiResponse> Create(OrderDetailVM newValue)
         {
-            var orderDetail = new OrderDetail()
+            try
             {
-                OrderId = newValue.OrderId,
-                ProductId= newValue.ProductId,
-                UnitPrice= newValue.UnitPrice,
-                Quantity= newValue.Quantity,
-                Discount= newValue.Discount,
-            };
-            await _context.OrderDetails.AddAsync(orderDetail);
-            bool result = await _context.SaveChangesAsync() > 0;
-            if (!result)
-            {
+                var existingEntity = _context.OrderDetails
+                    .FirstOrDefault(od => od.OrderId == newValue.OrderId && od.ProductId == newValue.ProductId);
+                if(existingEntity != null)
+                {
+                    return new ApiResponse()
+                    {
+                        Success = false,
+                        Message = "Order detail already exist"
+                    };
+                }
+                var orderDetail = new OrderDetail()
+                {
+                    OrderId = newValue.OrderId,
+                    ProductId= newValue.ProductId,
+                    UnitPrice= newValue.UnitPrice,
+                    Quantity= newValue.Quantity,
+                    Discount= newValue.Discount,
+                };
+                await _context.OrderDetails.AddAsync(orderDetail);
+                bool result = await _context.SaveChangesAsync() > 0;
+                if (!result)
+                {
+                    return new ApiResponse()
+                    {
+                        Success = false
+                    };
+                }
                 return new ApiResponse()
                 {
-                    Success = false
+                    Success = true
+                };
+            }catch(Exception e){
+
+                return new ApiResponse()
+                {
+                    Success = false,
+                    Message = e.Message
                 };
             }
-            return new ApiResponse()
-            {
-                Success = true
-            };
+
         }
         public async Task<ApiResponse> Delete(Guid orderId, Guid productId)
         {

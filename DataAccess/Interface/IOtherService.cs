@@ -1,5 +1,4 @@
 ﻿using BusinessObject;
-using BusinessObject.Model;
 using BusinessObject.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -9,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Interface
 {
-    public interface IOrderService : CommonInterface<OrderVm>
+    public interface IOtherService
     {
-        Task<ApiResponse> GetByUserId(string id);
-        Task<ApiResponse> Search(DateTime fromDate, DateTime endDate);
+        Task<ApiResponse> Buy(BuyVM newValue);
     }
 }

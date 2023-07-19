@@ -113,10 +113,10 @@ namespace DataAccess.Service
                 //{
                 //    await _roleManager.CreateAsync(new IdentityRole("Admin"));
                 //}
-                if (await _roleManager.RoleExistsAsync("User"))
-                {
-                    await _userManager.AddToRoleAsync(user, "User");
-                }
+                //if (await _roleManager.RoleExistsAsync("User"))
+                //{
+                //    await _userManager.AddToRoleAsync(user, "User");
+                //}
 
                 return new ApiResponse()
                 {

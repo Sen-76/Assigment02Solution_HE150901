@@ -12,6 +12,9 @@
 <body>
     <div class="container">
         <header style="display: flex; justify-content: flex-end">
+            <a href="./productuser"><button class="btn btn-outline-primary" id="cartBtn">Product</button></a>
+            <a href="./orderuser"><button class="btn btn-outline-primary" id="cartBtn">Order</button></a>
+            <a href="./cart"><button class="btn btn-outline-primary" id="cartBtn">Cart</button></a>
             <button class="btn btn-outline-primary" id="logoutBtn">Logout</button>
         </header>
         <main role="main" class="pb-3">
@@ -23,17 +26,10 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         $(document).ready(function () {
-            var role = getCookie("role");
-            console.log("Role:", role);
-
-            if (!role || role.length === 0) {
-                console.log("Redirecting to login");
-                window.location.href = '/login';
-            } else if (role === "User") {
-                console.log("Redirecting to home");
-                window.location.href = '/productuser';
-            }
-        });
+            var role = getCookie("role")
+            if (!role || role.length === 0) window.location.href = '/login'
+            else if (role === "Admin") window.location.href = '/'
+        })
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

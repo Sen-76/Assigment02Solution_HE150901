@@ -23,6 +23,10 @@
     </div>
     <div class="offcanvas-body">
         <form>
+            <div class="form-item" style="margin-bottom: 20px" id="orderIdItem">
+                <label class="item-name" style="margin-bottom: 5px">OrderId</label>
+                <select class="form-control" id="orderId"></select>
+            </div>
             <div class="form-item" style="margin-bottom: 20px">
                 <label class="item-name" style="margin-bottom: 5px">Product</label>
                 <select class="form-control" id="product"></select>
@@ -48,13 +52,17 @@
 
 @section Scripts{
     <script>
+        var token = getCookie("jwt")
         $(document).ready(function () {
             $.ajax({
                 url: "https://localhost:7039/api/OrderDetail/GetList",
                 method: "GET",
                 contentType: "application/json",
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
                 success: function (response) {
-                    response.data.forEach((item) => {
+                    response.data && response.data.forEach((item) => {
                         var $tr = $('<tr>')
                         var $orderId = $('<td>').text(item.orderId)
                         var $productId = $('<td>').text(item.productId)
@@ -64,7 +72,7 @@
                         var $action = $('<td>')
                         var $edit = $('<button onclick="Panel(`' + item.orderId + '`)">').text('Edit').addClass('btn btn-primary')
                             .attr("data-bs-toggle", "offcanvas").attr("data-bs-target", "#panel")
-                        var $delete = $('<button onclick="Modal(`' + item.orderId + '`)">').text('Delete').addClass('btn btn-danger')
+                        var $delete = $('<button onclick="Modal(`' + item.orderId + '`, `' + item.productId + '`)">').text('Delete').addClass('btn btn-danger')
                             .attr("data-bs-toggle", "modal").attr("data-bs-target", "#modal")
                         $action.append($edit, $delete)
                         $tr.append($orderId, $productId, $unitPrice, $quantity, $discount, $action)
@@ -73,16 +81,39 @@
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
-                    alert(xhr.responseText);
+                    window.location.href = '/'
                 },
             });
-        });
+        }); 
+        function Modal(orderId, productId) {
+            $('#modal-content').text('Are you sure to delete this order?')
+            $('#delete').on('click', function () {
+                $.ajax({
+                    url: "https://localhost:7039/api/OrderDetal/Delete?orderId=" + orderId + "&productId=" + productId,
+                    method: "POST",
+                    contentType: "application/json",
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
+                    success: function (response) {
+                        response.success && window.location.reload()
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        alert(xhr.responseText);
+                    },
+                });
+            })
+        }
         function Panel(id) {
             $('#panelLabel').text('Create')
             $.ajax({
                 url: "https://localhost:7039/api/Product/GetList",
                 method: "GET",
                 contentType: "application/json",
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
                 success: function (response) {
                     response.data.forEach((item) => {
                         var $option = $('<option>').val(item.productId).attr('id', item.productId).text(item.productName)
@@ -95,11 +126,15 @@
                 },
             });
             if (id) {
+                $('#orderIdItem').hide()
                 $('#panelLabel').text('Update')
                 $.ajax({
                     url: "https://localhost:7039/api/Order/GetById?id=" + id,
                     method: "GET",
                     contentType: "application/json",
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
                     success: function (response) {
                         $('#member').val(response.data.memberId),
                             $('#orderDate').val(response.data.orderDate),
@@ -113,21 +148,44 @@
                     },
                 });
             }
+            else{
+                $('#orderIdItem').show()
+                $.ajax({
+                    url: "https://localhost:7039/api/Order/GetList",
+                    method: "GET",
+                    contentType: "application/json",
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
+                    success: function (response) {
+                        response.data.forEach((item) => {
+                            var $option = $('<option>').val(item.orderId).attr('id', item.orderId).text(item.orderId)
+                            $('#orderId').append($option)
+                        })
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        alert(xhr.responseText);
+                    },
+                }); 
+            }
             $('#submit').on('click', function (e) {
                 e.preventDefault;
                 var formData = {
-                    orderId: id || "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                    memberId: $('#member').val(),
-                    orderDate: $('#orderDate').val(),
-                    requiredDate: $('#requiredDate').val(),
-                    shippedDate: $('#shippedDate').val(),
-                    freight: $('#freight').val()
+                    orderId: id || $('#orderId').val(),
+                    productId: $('#product').val(),
+                    unitPrice: $('#unitPrice').val(),
+                    quantity: $('#quantity').val(),
+                    discount: $('#discount').val(),
                 };
                 var href = id ? "https://localhost:7039/api/OrderDetail/Update" : "https://localhost:7039/api/OrderDetail/Create"
                 $.ajax({
                     url: href,
                     method: "POST",
                     contentType: "application/json",
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
                     data: JSON.stringify(formData),
                     success: function (response) {
                         console.log(response)
@@ -140,5 +198,13 @@
                 });
             })
         }
+        var myOffcanvas = document.getElementById('panel')
+        myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
+            $('#discount').val('')
+            $('#unitPrice').val('')
+            $('#quantity').val('')
+            $('#product option')[0].selected = true;
+            $('#orderId option')[0].selected = true;
+        })
     </script>
 }

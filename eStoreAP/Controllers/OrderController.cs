@@ -3,6 +3,7 @@ using BusinessObject.Model;
 using BusinessObject.ViewModel;
 using DataAccess.Interface;
 using DataAccess.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ namespace eStoreAP.Controllers
             _orderService = orderService;
         }
         [HttpGet("GetList")]
+        [Authorize(Roles = "Admin")]
         public async Task<ApiResponse> GetList()
         {
             try
@@ -44,7 +46,36 @@ namespace eStoreAP.Controllers
                 };
             }
         }
+        [HttpGet("Search")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ApiResponse> Search(DateTime fromDate, DateTime endDate)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return new ApiResponse()
+                    {
+                        Status = ResponeStatus.NotFound,
+                        Message = "Model is invalid",
+                        Success = false
+                    };
+                }
+                var result = await _orderService.Search(fromDate, endDate);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse()
+                {
+                    Status = ResponeStatus.BadRequest,
+                    Message = ex.Message,
+                    Success = false
+                };
+            }
+        }
         [HttpGet("GetById")]
+        [Authorize(Roles = "Admin")]
         public async Task<ApiResponse> GetById(Guid id)
         {
             try
@@ -72,6 +103,7 @@ namespace eStoreAP.Controllers
             }
         }
         [HttpPost("Create")]
+        [Authorize(Roles = "Admin")]
         public async Task<ApiResponse> Create(OrderVm newValue)
         {
             try
@@ -99,6 +131,7 @@ namespace eStoreAP.Controllers
             }
         }
         [HttpPost("Delete")]
+        [Authorize(Roles = "Admin")]
         public async Task<ApiResponse> Delete(Guid id)
         {
             try
@@ -126,6 +159,7 @@ namespace eStoreAP.Controllers
             }
         }
         [HttpPost("Update")]
+        [Authorize(Roles = "Admin")]
         public async Task<ApiResponse> Update(OrderVm newValue)
         {
             try
@@ -140,6 +174,34 @@ namespace eStoreAP.Controllers
                     };
                 }
                 var result = await _orderService.Update(newValue);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse()
+                {
+                    Status = ResponeStatus.BadRequest,
+                    Message = ex.Message,
+                    Success = false
+                };
+            }
+        }
+        [HttpGet("GetByUserId")]
+        [Authorize(Roles = "User")]
+        public async Task<ApiResponse> GetByUserId(string id)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return new ApiResponse()
+                    {
+                        Status = ResponeStatus.NotFound,
+                        Message = "Model is invalid",
+                        Success = false
+                    };
+                }
+                var result = await _orderService.GetByUserId(id);
                 return result;
             }
             catch (Exception ex)

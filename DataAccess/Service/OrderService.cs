@@ -86,6 +86,22 @@ namespace DataAccess.Service
                 Success = false
             };
         }
+        public async Task<ApiResponse> GetByUserId(string id)
+        {
+            var product = await _context.Orders.Where(x => x.MemberId == id).ToListAsync();
+            if (product != null)
+            {
+                return new ApiResponse()
+                {
+                    Success = true,
+                    Data = product
+                };
+            }
+            return new ApiResponse()
+            {
+                Success = false
+            };
+        }
 
         public async Task<ApiResponse> GetList()
         {
@@ -96,6 +112,52 @@ namespace DataAccess.Service
                 {
                     Success = true,
                     Data = product
+                };
+            }
+            return new ApiResponse()
+            {
+                Success = false
+            };
+        }
+
+        public async Task<ApiResponse> Search(DateTime fromDate, DateTime endDate)
+        {
+            var result = _context.OrderDetails
+               .Join(_context.Orders,
+                   od => od.OrderId,
+                   o => o.OrderId,
+                   (od, o) => new { OrderDetail = od, Order = o })
+                .Join(
+                   _context.Products,
+                   od => od.OrderDetail.ProductId,
+                   p => p.ProductId,
+                   (od, p) => new { od.OrderDetail, od.Order, Product = p }
+               )
+               .Where(x => x.Order.OrderDate >= fromDate && x.Order.OrderDate <= endDate)
+               .GroupBy(
+                   x => new
+                   {
+                       OrderDate = x.Order.OrderDate,
+                       ProductName = x.Product.ProductName,
+                       UnitPrice = x.OrderDetail.UnitPrice
+                   })
+               .Select(g => new
+               {
+                   OrderDate = g.Key.OrderDate,
+                   ProductName = g.Key.ProductName,
+                   UnitPrice = g.Key.UnitPrice,
+                   Quantity = g.Sum(x => x.OrderDetail.Quantity),
+                   Sales = g.Sum(x => x.OrderDetail.Quantity) * g.Key.UnitPrice
+               })
+               .OrderByDescending(x => x.OrderDate)
+               .ThenByDescending(x => x.Sales)
+               .ToList();
+            if (result.Count > 0)
+            {
+                return new ApiResponse()
+                {
+                    Success = true,
+                    Data = result
                 };
             }
             return new ApiResponse()

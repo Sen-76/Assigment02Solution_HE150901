@@ -90,8 +90,27 @@ namespace DataAccess.Service
         }
 
         public async Task<ApiResponse> GetList()
-        {
+            {
             var product = await _context.Products.OrderBy(x => x.ProductName).ToListAsync();
+            if (product.Count > 0)
+            {
+                return new ApiResponse()
+                {
+                    Success= true,
+                    Data= product
+                };
+            }
+            return new ApiResponse()
+            {
+                Success = false
+            };
+        }
+
+        public async Task<ApiResponse> Search(string serchValue)
+        {
+            var product = await _context.Products
+                .Where(x => x.ProductName.Contains(serchValue))
+                .OrderBy(x => x.ProductName).ToListAsync();
             if (product.Count > 0)
             {
                 return new ApiResponse()

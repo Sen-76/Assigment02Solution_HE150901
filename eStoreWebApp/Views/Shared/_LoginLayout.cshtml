@@ -11,9 +11,6 @@
 </head>
 <body>
     <div class="container">
-        <header style="display: flex; justify-content: flex-end">
-            <button class="btn btn-outline-primary" id="logoutBtn">Logout</button>
-        </header>
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -23,17 +20,12 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         $(document).ready(function () {
-            var role = getCookie("role");
-            console.log("Role:", role);
-
-            if (!role || role.length === 0) {
-                console.log("Redirecting to login");
-                window.location.href = '/login';
-            } else if (role === "User") {
-                console.log("Redirecting to home");
-                window.location.href = '/productuser';
+            var role = getCookie("role")
+            if (role) {
+                if (role === "User") window.location.href = '/productuser'
+                if (role === "Admin") window.location.href = '/'
             }
-        });
+        })
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

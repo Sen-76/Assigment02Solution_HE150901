@@ -3,6 +3,7 @@ using BusinessObject.Model;
 using BusinessObject.ViewModel;
 using DataAccess.Interface;
 using DataAccess.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,7 @@ namespace eStoreAP.Controllers
         {
             _productService = productService;
         }
+        [Authorize]
         [HttpGet("GetList")]
         public async Task<ApiResponse> GetList()
         {
@@ -44,6 +46,7 @@ namespace eStoreAP.Controllers
                 };
             }
         }
+        [Authorize]
         [HttpGet("GetById")]
         public async Task<ApiResponse> GetById(Guid id)
         {
@@ -71,6 +74,7 @@ namespace eStoreAP.Controllers
                 };
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("Create")]
         public async Task<ApiResponse> Create(ProductVM newValue)
         {
@@ -98,6 +102,7 @@ namespace eStoreAP.Controllers
                 };
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("Delete")]
         public async Task<ApiResponse> Delete(Guid id)
         {
@@ -125,6 +130,7 @@ namespace eStoreAP.Controllers
                 };
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("Update")]
         public async Task<ApiResponse> Update(ProductVM newValue)
         {
@@ -140,6 +146,34 @@ namespace eStoreAP.Controllers
                     };
                 }
                 var result = await _productService.Update(newValue);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse()
+                {
+                    Status = ResponeStatus.BadRequest,
+                    Message = ex.Message,
+                    Success = false
+                };
+            }
+        }
+        [Authorize]
+        [HttpGet("Search")]
+        public async Task<ApiResponse> Search(string searchValue)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return new ApiResponse()
+                    {
+                        Status = ResponeStatus.NotFound,
+                        Message = "Model is invalid",
+                        Success = false
+                    };
+                }
+                var result = await _productService.Search(searchValue);
                 return result;
             }
             catch (Exception ex)

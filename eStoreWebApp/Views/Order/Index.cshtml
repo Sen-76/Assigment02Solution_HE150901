@@ -30,15 +30,15 @@
             </div>
             <div class="form-item" style="margin-bottom: 20px">
                 <label class="item-name" style="margin-bottom: 5px">Order Date</label>
-                <input class="form-control" type="datetime" id="orderDate" />
+                <input class="form-control" type="date" id="orderDate" />
             </div>
             <div class="form-item" style="margin-bottom: 20px">
                 <label class="item-name" style="margin-bottom: 5px">Required Date</label>
-                <input class="form-control" type="datetime" id="requiredDate" />
+                <input class="form-control" type="date" id="requiredDate" />
             </div>
             <div class="form-item" style="margin-bottom: 20px">
                 <label class="item-name" style="margin-bottom: 5px">Shipped Date</label>
-                <input class="form-control" type="datetime" id="shippedDate" />
+                <input class="form-control" type="date" id="shippedDate" />
             </div>
             <div class="form-item" style="margin-bottom: 20px">
                 <label class="item-name" style="margin-bottom: 5px">Freight</label>
@@ -71,11 +71,15 @@
 
 @section Scripts{
     <script>
+        var token = getCookie("jwt")
         $(document).ready(function () {
             $.ajax({
                 url: "https://localhost:7039/api/Order/GetList",
                 method: "GET",
                 contentType: "application/json",
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
                 success: function (response) {
                     response.data.forEach((item) => {
                         var $tr = $('<tr>')
@@ -97,7 +101,7 @@
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
-                    alert(xhr.responseText);
+                    window.location.href = '/'
                 },
             });
         });
@@ -108,6 +112,9 @@
                     url: "https://localhost:7039/api/Order/Delete?id=" + id,
                     method: "POST",
                     contentType: "application/json",
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
                     success: function (response) {
                         response.success && window.location.reload()
                     },
@@ -124,6 +131,9 @@
                 url: "https://localhost:7039/api/User/GetList",
                 method: "GET",
                 contentType: "application/json",
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
                 success: function (response) {
                     response.data.forEach((item) => {
                         var $option = $('<option>').val(item.id).attr('id', item.id).text(item.userName)
@@ -141,6 +151,9 @@
                     url: "https://localhost:7039/api/Order/GetById?id=" + id,
                     method: "GET",
                     contentType: "application/json",
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
                     success: function (response) {
                         $('#member').val(response.data.memberId),
                             $('#orderDate').val(response.data.orderDate),
@@ -169,6 +182,9 @@
                     url: href,
                     method: "POST",
                     contentType: "application/json",
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
                     data: JSON.stringify(formData),
                     success: function (response) {
                         console.log(response)
@@ -181,5 +197,13 @@
                 });
             })
         }
+        var myOffcanvas = document.getElementById('panel')
+        myOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
+            $('#shippedDate').val('')
+            $('#orderDate').val('')
+            $('#requiredDate').val('')
+            $('#freight').val('')
+            $('#member option')[0].selected = true;
+        })
     </script>
 }

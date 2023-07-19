@@ -3,6 +3,7 @@ using BusinessObject.Model;
 using BusinessObject.ViewModel;
 using DataAccess.Interface;
 using DataAccess.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ namespace eStoreAP.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class OrderDetailController : ControllerBase
     {
         private readonly IOrderDetailService _orderDetailService;

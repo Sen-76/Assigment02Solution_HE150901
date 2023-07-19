@@ -55,6 +55,7 @@ builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<IOrderService, OrderService>();
 builder.Services.AddTransient<ICateService, CategoryService>();
 builder.Services.AddTransient<IOrderDetailService, OrderDetailService>();
+builder.Services.AddTransient<IOtherService, OtherService>();
 builder.Services
     .AddIdentity<User, IdentityRole>(options =>
     {
@@ -65,6 +66,9 @@ builder.Services
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequireUppercase = false;
         options.Password.RequireLowercase = false;
+        options.Lockout.DefaultLockoutTimeSpan= TimeSpan.FromHours(24);
+        options.Lockout.MaxFailedAccessAttempts= 5;
+        options.Lockout.AllowedForNewUsers= true;
     })
     .AddEntityFrameworkStores<EStoreAPContext>()
     .AddDefaultTokenProviders();

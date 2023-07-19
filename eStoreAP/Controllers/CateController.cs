@@ -3,11 +3,13 @@ using BusinessObject;
 using DataAccess.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace eStoreAP.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class CateController : ControllerBase
     {
         private readonly ICateService _cateService;

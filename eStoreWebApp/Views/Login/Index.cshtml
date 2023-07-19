@@ -1,7 +1,9 @@
 ﻿@section Header{
     <link rel="stylesheet" href="~/css/login.css" />
 }
-
+@{
+    Layout = "_LoginLayout";
+}
 <div class="container">
     <div class="row">
         <div class="col-md-6">
@@ -14,12 +16,6 @@
                         <h3>Sign In</h3>
                     </div>
                     <form class="formLogin" id="formLogin">
-                        @if (ViewBag.ErrorMessage != null)
-                        {
-                            <div class="alert alert-danger" role="alert">
-                                @ViewBag.ErrorMessage
-                            </div>
-                        }
                         <div class="form-group ">
                             <label for="email">Email</label>
                             <input id="email" type="text" class="form-control">
@@ -31,7 +27,7 @@
                         <a href="#" id="changeForgotForm">Forgot password?</a>
                         <div class="form-group">
                             <input type="button" value="Sign In" id="loginBtn" class="btn btn-block btn-primary">
-                            <input type="button" value="Sign Up" id="signinBtn" class="btn btn-block btn-primary">
+                            <input type="button" value="Sign Up" id="signupBtn" class="btn btn-block btn-primary">
                         </div>
                     </form>
                 </div>
@@ -41,30 +37,75 @@
 </div>
 @section Scripts{
     <script>
+        function decodeJwt(token) {
+            var base64Url = token.split('.')[1]; // Extract the payload part of the token
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); // Replace characters for decoding
+            var jsonPayload = decodeURIComponent(escape(window.atob(base64))); // Decode the base64-encoded payload
+            return JSON.parse(jsonPayload); // Parse the decoded payload as JSON
+        }
         $("#loginBtn").on('click', function (e) {
             e.preventDefault;
+            $('#alert').remove()
             var formData = {
                 email: $('#email').val(),
                 password: $('#password').val()
             };
-
             $.ajax({
                 url: "https://localhost:7039/api/User/Login",
                 method: "POST",
                 contentType: "application/json",
                 data: JSON.stringify(formData),
                 success: function (response) {
-                    console.log('oke');
+                    if (response.success) {
+                        setCookie("jwt", response.data, 7);
+                        var obj = decodeJwt(response.data);
+                        var role = obj["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+                        setCookie("role", role, 7);
+                        setCookie("id", obj.UserId, 7);
+                        role === "Admin" && (window.location.href = '/');
+                        role === "User" && (window.location.href = '/productuser');
+                    } else {
+                        $alert = $('<div>').addClass('alert alert-danger').attr('role', 'alert')
+                            .attr('id', 'alert').text(response.message)
+                        $('#formLogin').prepend($alert)
+                    }
                 },
                 error: function (xhr, status, error) {
-                    console.log(error);
-                    alert(xhr.responseText);
+                    $alert = $('<div>').addClass('alert alert-danger').attr('role', 'alert')
+                        .attr('id', 'alert').append(xhr.responseJSON.errors.Email).append(xhr.responseJSON.errors.Password)
+                    $('#formLogin').prepend($alert)
                 },
             });
         });
-
-        $("#signinBtn").on('click', function () {
-            console.log('signin')
+        $("#signupBtn").on('click', function (e) {
+            e.preventDefault;
+            $('#alert').remove()
+            var formData = {
+                email: $('#email').val(),
+                password: $('#password').val()
+            };
+            $.ajax({
+                url: "https://localhost:7039/api/User/Register",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    if (response.success) {
+                        $alert = $('<div>').addClass('alert alert-success').attr('role', 'alert')
+                            .attr('id', 'alert').text('Sigup success')
+                        $('#formLogin').prepend($alert)
+                    } else {
+                        $alert = $('<div>').addClass('alert alert-danger').attr('role', 'alert')
+                            .attr('id', 'alert').text(response.message)
+                        $('#formLogin').prepend($alert)
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $alert = $('<div>').addClass('alert alert-danger').attr('role', 'alert')
+                        .attr('id', 'alert').append(xhr.responseJSON.errors.Email).append(xhr.responseJSON.errors.Password)
+                    $('#formLogin').prepend($alert)
+                },
+            });
         })
     </script>
 }

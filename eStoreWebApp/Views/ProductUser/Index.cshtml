@@ -1,0 +1,175 @@
+﻿@{
+    Layout = "_UserLayout";
+}
+<h1>Product</h1>
+<div style="display: flex; justify-content: flex-end">
+    <div style="display: flex; gap: 5px">
+        <input id="searchInput" class="form-control" style="width: 250px" placeholder="Search" />
+        <button id="searchBtn" class="btn btn-primary" type="button">Search</button>
+    </div>
+</div>
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <td>ProductName</td>
+            <td>UnitPrice</td>
+            <td>UnitStock</td>
+            @*<td>Category</td>*@
+            <td style="width: 200px">Action</td>
+        </tr>
+    </thead>
+    <tbody id="tablebody">
+    </tbody>
+</table>
+
+<div class="modal fade" id="modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Add to cart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <span id="modal-content">
+                    <input class="form-control" placeholder="Quantity" type="Number" id="quantity" />
+                </span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="addCart">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var token = getCookie("jwt")
+        function GetList() {
+            let cart = getCookie('cart') || [];
+            $.ajax({
+                url: "https://localhost:7039/api/Product/GetList",
+                method: "GET",
+                contentType: "application/json",
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
+                success: function (response) {
+                    response.data?.forEach((item) => {
+                        var btnText = 'Add to Cart'
+                        cart?.forEach(itemcart => {
+                            itemcart.productId === item.productId && (btnText = 'Update Cart')
+                        });
+                        var $tr = $('<tr>')
+                        var $productName = $('<td>').text(item.productName)
+                        var $unitPrice = $('<td>').text(item.unitPrice)
+                        var $unitStock = $('<td>').text(item.unitStock)
+                        var $category = $('<td>').text(item.categoryId)
+                        var $action = $('<td>')
+                        var $addcart = $('<button onclick="AddCart(`' + item.productId + '`, `' + item.unitStock + '`)">').text(btnText).addClass('btn btn-primary')
+                            .attr("data-bs-toggle", "modal").attr("data-bs-target", "#modal")
+                        $action.append($addcart)
+                        $tr.append($productName, $unitPrice, $unitStock, $action)
+                        $('#tablebody').append($tr)
+                    })
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                },
+            });
+        }
+        $(document).ready(function () {
+            if (token) {
+                GetList()
+            }
+        });
+        function AddCart(productId, unitStock) {
+            $('#modalLabel').text('Add to cart');
+            $('#quantity').val(1);
+            $('#alert').remove();
+            let cart = getCookie('cart') || [];
+            let isUpdate = false;
+
+            if (cart.length > 0) {
+                cart?.forEach(item => {
+                    if (item.productId === productId) {
+                        $('#modalLabel').text('Update cart');
+                        $('#quantity').val(item.quantity);
+                        isUpdate = true;
+                    }
+                });
+            }
+
+            $('#addCart').on('click', function () {
+                let quantity = parseInt($('#quantity').val(), 10);
+
+                if (quantity <= unitStock) {
+                    if (isUpdate) {
+                        cart = cart.map(item => {
+                            if (item.productId === productId) {
+                                return {
+                                    productId: productId,
+                                    quantity: quantity
+                                };
+                            }
+                            return item;
+                        });
+                    } else {
+                        cart.push({
+                            productId: productId,
+                            quantity: quantity
+                        });
+                    }
+
+                    setCookie('cart', cart, 7);
+                    console.log(cart);
+                    window.location.reload();
+                } else {
+                    $('#alert').remove();
+                    const $alert = $('<div>')
+                        .addClass('alert alert-danger')
+                        .attr('role', 'alert')
+                        .attr('id', 'alert')
+                        .text('Quantity exceeds the number of items in stock!');
+                    $('#modal-body').prepend($alert);
+                }
+            });
+        }
+        $("#searchBtn").on('click', function () {
+            const searchValue = $('#searchInput').val()
+            $('#tablebody').children().remove()
+            if (token) {
+                searchValue ?
+                    $.ajax({
+                        url: "https://localhost:7039/api/Product/Search?searchValue=" + searchValue,
+                        method: "GET",
+                        contentType: "application/json",
+                        headers: {
+                            Authorization: "Bearer " + token,
+                        },
+                        success: function (response) {
+                            response.data && response.data.forEach((item) => {
+                                var $tr = $('<tr>')
+                                var $productName = $('<td>').text(item.productName)
+                                var $unitPrice = $('<td>').text(item.unitPrice)
+                                var $unitStock = $('<td>').text(item.unitStock)
+                                var $category = $('<td>').text(item.categoryId)
+                                var $action = $('<td>')
+                                var $edit = $('<button onclick="Panel(`' + item.productId + '`)">').text('Edit').addClass('btn btn-primary')
+                                    .attr("data-bs-toggle", "offcanvas").attr("data-bs-target", "#panel")
+                                var $delete = $('<button onclick="Modal(`' + item.productId + '`)">').text('Delete').addClass('btn btn-danger')
+                                    .attr("data-bs-toggle", "modal").attr("data-bs-target", "#modal")
+                                $action.append($edit, $delete)
+                                $tr.append($productName, $unitPrice, $unitStock, $action)
+                                $('#tablebody').append($tr)
+                            })
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                            alert(xhr.responseText);
+                        },
+                    }) : GetList();
+            }
+        })
+    </script>
+}

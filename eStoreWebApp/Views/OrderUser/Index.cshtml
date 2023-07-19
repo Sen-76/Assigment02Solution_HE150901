@@ -1,0 +1,46 @@
+﻿@{
+    Layout = "_UserLayout";
+}
+<table class="table table-striped table-hover" id="table">
+    <thead>
+        <tr>
+            <td>OrderId</td>
+            <td>OrderDate</td>
+            <td>RequiredDate</td>
+            <td>ShippedDate</td>
+            <td>Freight</td>
+        </tr>
+    </thead>
+    <tbody id="tablebody">
+    </tbody>
+</table>
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            var token = getCookie("jwt");
+            var id = getCookie("id");
+            $.ajax({
+                url: "https://localhost:7039/api/Order/GetByUserId?id=" + id,
+                method: "GET",
+                contentType: "application/json",
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
+            }).done(function (response) {
+                response.data.forEach((item) => {
+                    var $tr = $('<tr>')
+                    var $orderId = $('<td>').text(item.orderId)
+                    var $orderDate = $('<td>').text(item.orderDate)
+                    var $requiredDate = $('<td>').text(item.requiredDate)
+                    var $shippedDate = $('<td>').text(item.shippedDate)
+                    var $freight = $('<td>').text(item.freight)
+                    $tr.append($orderId, $orderDate, $requiredDate, $shippedDate, $freight)
+                    $('#tablebody').append($tr)
+                })
+            }).fail(function (xhr, status, error) {
+                console.log(error);
+                alert(xhr.responseText);
+            });
+        });
+    </script>
+}

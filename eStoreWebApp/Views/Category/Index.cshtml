@@ -50,13 +50,16 @@
 
 @section Scripts{
     <script>
+        var token = getCookie("jwt")
         $(document).ready(function () {
             $.ajax({
                 url: "https://localhost:7039/api/Cate/GetList",
                 method: "GET",
                 contentType: "application/json",
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
                 success: function (response) {
-                    console.log(response)
                     response.data.forEach((item) => {
                         var $tr = $('<tr>')
                         var categoryName = $('<td>').text(item.categoryName)
@@ -70,7 +73,7 @@
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
-                    alert(xhr.responseText);
+                    window.location.href = '/'
                 },
             });
         });
@@ -81,6 +84,9 @@
                     url: "https://localhost:7039/api/Cate/Delete?id=" + id,
                     method: "POST",
                     contentType: "application/json",
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
                     success: function (response) {
                         response.success && window.location.reload()
                     },
@@ -96,6 +102,9 @@
                 url: "https://localhost:7039/api/Cate/GetList",
                 method: "GET",
                 contentType: "application/json",
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
                 success: function (response) {
                     response.data.forEach((item) => {
                         var $option = $('<option>').val(item.categoryId).attr('id', item.categoryId).text(item.categoryName)
@@ -118,6 +127,9 @@
                     url: "https://localhost:7039/api/Cate/Create",
                     method: "POST",
                     contentType: "application/json",
+                    headers: {
+                        Authorization: "Bearer " + token,
+                    },
                     data: JSON.stringify(formData),
                     success: function (response) {
                         console.log(response)
